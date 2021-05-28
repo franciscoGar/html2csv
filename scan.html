@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Inventory</title>
+
+
+</head>
+<body>
+    <form name="list" id="list">
+        <table>
+            <tr>
+                <td>
+                    <label for="BatCH">BatCH:</label>
+                </td>
+                <td>
+                    <input id="BatCH" name="BatCH" type="text" size="28" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="Barcode">BArcode:</label>
+                </td>
+                <td>
+                    <input id="Barcode" name="Barcode"  size="28" disabled/>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input id="Qtty" type="hidden" name="Qtty" value="1" size="28" />
+                </td>
+            </tr>
+        </table>
+     </form>
+    <br>
+    <button>Generate Import File (CSV)</button>
+    
+    <table id="results" width="360">
+        <thead>
+        <tr>
+            <th scope="col" width="120">Products</th>
+            <th scope="col" width="120">Quantity</th>
+            <th scope="col" width="120">Price</th>
+        </tr>
+        </thead>
+    </table>
+	<script>
+	var input = document.getElementById("BatCH");
+input.addEventListener("keyup", function(event) {
+  if (event.keyCode === 13) {
+   event.preventDefault();
+   if (input.value != "" ){
+   document.getElementById("BatCH").disabled = true;
+   document.getElementById("Barcode").disabled = false;
+   document.getElementById("Barcode").focus();
+   }
+  }
+});
+
+var input1 = document.getElementById("Barcode");
+input1.addEventListener("keyup", function(event) {
+  if (event.keyCode === 13) {
+   event.preventDefault();
+   if (input1.value != "" ){
+   updateForm ();
+   input1.value =""
+   
+   }
+  }
+});
+
+
+
+function updateForm() {
+            var product = document.getElementById("BatCH").value;
+            var qty = document.getElementById("Barcode").value;
+            var price = document.getElementById("Qtty").value;    
+            var table=document.getElementById("results");
+            var row=table.insertRow(-1);
+            var cell1=row.insertCell(0);
+            var cell2=row.insertCell(1);
+            var cell3=row.insertCell(2);
+            cell1.innerHTML=product;
+            cell2.innerHTML=qty;        
+            cell3.innerHTML=price;           
+        }
+
+function download_csv(csv, filename) {
+    var csvFile;
+    var downloadLink;
+
+    // CSV FILE
+    csvFile = new Blob([csv], {type: "text/csv"});
+
+    // Download link
+    downloadLink = document.createElement("a");
+
+    // File name
+    downloadLink.download = filename;
+
+    // We have to create a link to the file
+    downloadLink.href = window.URL.createObjectURL(csvFile);
+
+    // Make sure that the link is not displayed
+    downloadLink.style.display = "none";
+
+    // Add the link to your DOM
+    document.body.appendChild(downloadLink);
+
+    // Lanzamos
+    downloadLink.click();
+}
+
+function export_table_to_csv(html, filename) {
+	var csv = [];
+	var table = document.getElementById("results")
+	var rows = table.querySelectorAll("table tr");
+	if (rows.length>1) {
+    for (var i = 1; i < rows.length; i++) {
+		var row = [], cols = rows[i].querySelectorAll("td, th");
+		
+        for (var j = 0; j < cols.length; j++) 
+            row.push(cols[j].innerText);
+        
+		csv.push(row.join(","));		
+	}
+
+    // Download CSV
+    download_csv(csv.join("\n"), filename);
+	}
+	else{
+		window.alert("No records");
+	}
+}
+
+document.querySelector("button").addEventListener("click", function () {
+	var d = new Date();
+    var html = document.querySelector("table").outerHTML;
+	export_table_to_csv(html,d.getFullYear()+"-"+d.getMonth()+"-"+d.getDate()+"-"+d.getHours()+"-"+d.getMinutes()+".csv" );
+});
+
+
+	</script>
+    
+</body>
+</html>
